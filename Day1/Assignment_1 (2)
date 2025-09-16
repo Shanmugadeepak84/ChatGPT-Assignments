@@ -1,0 +1,14 @@
+Assignment: Develop an OpenAI Chat Assistant
+
+Question:
+You are tasked with developing a chat assistant using OpenAI's API. Your chat assistant should interact with users in a conversational manner and provide responses based on the given context. 
+Implement the following functionalities in your program:
+
+Set up the OpenAI API key to authenticate with the OpenAI API.
+Define a function get_openai_response(messages) that takes a list of messages as input, sends a request to OpenAI's API using the provided model, and returns the assistant's response content.
+Create a main function main() that sets up a conversation context, calls get_openai_response to get the assistant's response, and prints the response if available.
+Handle errors gracefully by implementing error handling in your code to catch any exceptions that may occur during API requests.
+Deliverables:
+Submit a Python script or Jupyter Notebook containing the code for your OpenAI chat assistant implementation. Include comments in your code to explain each function's purpose and any relevant details. Ensure that your code runs without errors and demonstrates the functionality described above.
+
+Note: Remember to replace 'YOUR_OPENAI_API_KEY' with your actual OpenAI API key in your code.
