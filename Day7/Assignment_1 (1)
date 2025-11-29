@@ -1,2 +1,55 @@
 Describe the purpose of the Python code provided. How does it access the OpenAI API using an API key and monitor rate limit usage? Discuss the importance of monitoring rate limits in API usage.
 
+Purpose of the Python Code:
+The provided Python code is designed to:
+Authenticate with the OpenAI API using an API key.
+Retrieve the current API usage details, specifically rate limit information.
+Print the rate limit usage so the developer can monitor API consumption and avoid hitting usage caps.
+
+How the Code Works:
+1. Importing OpenAI Library
+import openai
+This imports the official OpenAI Python SDK, which provides functions for interacting with the API.
+2. Setting the API Key
+openai.api_key = 'YOUR_API_KEY'
+This line assigns your secret API key to the SDK.
+The key authorizes your program to access OpenAI’s services.
+It must be kept private—never hard-code it in production (use environment variables instead).
+3. Retrieving Usage Information
+usage = openai.Usage.retrieve()
+Calls the Usage.retrieve() endpoint.
+This returns current usage statistics, including rate-limit consumption.
+4. Printing the Usage
+print("Current Rate Limit Usage:\n", usage)
+Displays usage details such as tokens consumed, requests made, and remaining quota.
+
+Rate Limit Usage:
+API rate limits typically include:
+Requests per minute (RPM)
+Tokens per minute (TPM)
+Daily / monthly credit limits
+Model-specific limits
+Monitoring these helps ensure smooth operation of your application.
+
+Why Monitoring Rate Limits Is Important:
+1. Prevents API Errors
+If your application exceeds rate limits, the API will return:
+429 Too Many Requests
+Temporary bans or cooldowns
+This can cause service disruptions.
+2. Ensures Application Reliability
+Apps that rely on the API (chatbots, RAG systems, analytics tools) need continuous availability.
+Monitoring usage helps you:
+Queue requests
+Implement backoff strategies
+Avoid downtime
+3. Cost Control
+API usage equals cost. Checking usage helps:
+Track billing
+Prevent accidental overspending
+Detect unexpected spikes in token usage
+4. Performance Optimization
+Monitoring rate limits helps developers:
+Identify inefficient prompts
+Reduce excessive token usage
+Optimize batch processing
