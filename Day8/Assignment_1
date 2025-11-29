@@ -1,1 +1,140 @@
 Describe the functionality of the Python code provided. How does it generate concise and focused instructions using ChatGPT based on a given prompt? Discuss strategies for crafting effective prompts to elicit specific and relevant responses from ChatGPT.
+
+This script takes a text prompt (“Provide step-by-step instructions on how to make a chocolate cake.”), feeds it to a GPT-2 model, and asks the model to continue the text in the form of instructions—then prints the result.
+What the code is doing
+a) Importing the model and tokenizer
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+You’re using Hugging Face’s transformers library and loading GPT-2 (specifically gpt2-medium).
+Note: this is a GPT-2 language model, not the actual hosted “ChatGPT” API, but it’s the same type of model (a GPT-style transformer).
+model_name = "gpt2-medium"
+model = GPT2LMHeadModel.from_pretrained(model_name)
+tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+GPT2LMHeadModel is a language model: given some text, it predicts what comes next.
+GPT2Tokenizer converts between text and token IDs (numbers the model understands).
+
+b) Defining the prompt
+prompt = "Provide step-by-step instructions on how to make a chocolate cake."
+This is the instruction you’re giving the model. It sets the task: generate step-by-step instructions about making a chocolate cake.
+This wording already nudges the model to:
+Use an instructional tone.
+Output steps in order.
+Stay on topic (chocolate cake).
+
+c) Tokenizing and generating
+inputs = tokenizer(prompt, return_tensors="pt")
+Converts the prompt into PyTorch tensors ("pt").
+inputs.input_ids is the sequence of token IDs representing the prompt.
+outputs = model.generate(
+    inputs.input_ids,
+    max_length=300,
+    num_return_sequences=1,
+    temperature=0.9
+)
+
+
+Key parameters:
+inputs.input_ids: The prompt context. The model will continue from here.
+max_length=300: The total length (prompt + generated text) won’t exceed 300 tokens. This acts as a rough limit to keep the instructions “concise” (ish).
+num_return_sequences=1: Generate one completion.
+temperature=0.9:
+Controls randomness.
+Lower (e.g. 0.2–0.5) = more deterministic, focused, sometimes boring.
+Higher (e.g. 0.8–1.0) = more diverse, creative, sometimes less focused.
+0.9 is slightly creative but still reasonable.
+So: the model takes the prompt and auto-completes it into a full, step-by-step “recipe”–style answer.
+
+d) Decoding and printing
+generated_instructions = tokenizer.decode(outputs[0], skip_special_tokens=True)
+print("Generated Instructions:\n", generated_instructions)
+tokenizer.decode turns the token IDs back into a human-readable string.
+skip_special_tokens=True removes tokens like that may appear internally.
+The result is printed as “Generated Instructions”.
+
+2. How does it generate concise and focused instructions?
+Three main factors help:
+The prompt wording
+“Provide step-by-step instructions…” tells the model:
+It should instruct, not just describe.
+It should be organized as steps.
+“…on how to make a chocolate cake” locks the topic.
+The length constraint (max_length=300)
+Prevents the model from rambling indefinitely.
+Forces it to fit the entire recipe within a limited space, which naturally encourages conciseness (though GPT-2 might still waffle a bit).
+Sampling temperature (temperature=0.9)
+Balances creativity and coherence.
+Not too low: you avoid super repetitive, dull text.
+Not too high: you reduce the risk of totally off-topic or chaotic responses.
+If you wanted even more focused, you might drop temperature to around 0.5 and add extra instructions in the prompt (like “limit to 10 steps” or “keep it under 200 words”).
+3. Strategies for crafting effective prompts
+To get specific, relevant responses (from GPT-2 here, or from ChatGPT via API), prompt design is critical. Some general strategies:
+1) Be explicit about the task and format
+Instead of:
+Explain how to make a chocolate cake.
+You did:
+Provide step-by-step instructions on how to make a chocolate cake.
+Even better:
+Provide numbered, step-by-step instructions on how to make a chocolate cake.
+Include ingredients first, then the method. Limit the answer to about 10 steps.
+This tells the model:
+Use numbered steps.
+Include ingredients.
+Then method.
+Keep it short.
+
+2) Specify audience and tone
+Examples:
+“Explain like I’m a complete beginner at baking.”
+“Use simple, clear language suitable for a 12-year-old.”
+“Write as a professional chef giving precise instructions.”
+Models adapt strongly to these cues.
+
+3) Give constraints (length, style, structure)
+Length:
+“In under 150 words”, “in a short paragraph”, “no more than 10 bullet points”.
+Style:
+“Formal tone”, “friendly tone”, “like a blog post introduction”.
+Structure:
+“Use headings: Ingredients, Preparation, Baking, Serving.”
+
+4) Provide context or examples
+If you want a very specific format, you can show a mini-example in the prompt:
+Example format:
+Step 1: Do X
+Step 2: Do Y
+Now, using the same format, provide step-by-step instructions on how to make a chocolate cake.
+This strongly guides the output structure.
+
+5) Use “do” instructions instead of “don’t”
+Rather than:
+Don’t be verbose.
+Use:
+Be brief and to the point, focusing only on the essential steps.
+Positive instructions (“do”) are easier for models to follow than negatives (“don’t”).
+
+6) Iterate on the prompt
+In practice, you try a prompt, see the output, and refine:
+If it’s too long → add a length limit.
+If it’s missing structure → explicitly ask for numbered steps or sections.
+If it’s off-topic → restate the topic clearly and remove ambiguous words.
+
+4. How you might improve this particular prompt
+Here’s a version that should give even cleaner instructions:
+prompt = (
+    "You are an expert baker.\n"
+    "Provide clear, numbered, step-by-step instructions on how to make a simple chocolate cake at home.\n"
+    "First list the ingredients with quantities, then describe the preparation and baking steps.\n"
+    "Keep the answer under 200 words."
+)
+
+And you might adjust generation:
+outputs = model.generate(
+    inputs.input_ids,
+    max_length=250,
+    num_return_sequences=1,
+    temperature=0.7,
+    do_sample=True,
+    top_p=0.9
+)
+
+temperature=0.7 → more focused.
+do_sample=True, top_p=0.9 → nucleus sampling, usually improves quality over pure greedy decoding.
